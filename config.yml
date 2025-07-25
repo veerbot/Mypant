@@ -6,10 +6,10 @@ engines:
     name: "stockfish"
     ponder: true
     silence_stderr: false
-    move_overhead_multiplier: 21.0
+    move_overhead_multiplier: 22.0
     uci_options:
       Threads: 4
-      Hash: 2048
+      Hash: 2248
       Move Overhead: 100
     limits:
       # time: 20.0
@@ -71,12 +71,14 @@ opening_books:
       selection: best_move 
     # max depth : 69 
       names:
+        - Stay
         - Win
         - Black
     standard_white:
       selection: best_move 
     # max depth : 69 
       names:
+        - Stay
         - White
         - Black
         - Optimus
@@ -85,7 +87,6 @@ opening_books:
       names: 
         - Torma
         - Titans
-    
 
 online_moves:
   opening_explorer:
@@ -129,7 +130,7 @@ offer_draw:
   enabled: true
   score: 10
   consecutive_moves: 10
-  min_game_length: 35
+  min_game_length: 32
   against_humans: false
 
 resign:
@@ -139,7 +140,7 @@ resign:
   against_humans: false
 
 challenge:
-  concurrency: 1
+  concurrency: 2
   bullet_with_increment_only: false   
 # min_initial: 60
   variants:
@@ -206,4 +207,4 @@ books:
   Win: "./engines/win.bin"
   White: "./engines/white.bin"
   Titans: "./engines/Titans.bin"
-
+  Stay: "./engines/terimakichud.bin"
