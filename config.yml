@@ -9,7 +9,7 @@ engines:
     move_overhead_multiplier: 24.0
     uci_options:
       Threads: 4
-      Hash: 2248
+      Hash: 2508
       Move Overhead: 100
     limits:
       # time: 20.0
@@ -20,7 +20,7 @@ engines:
     name: "stockfish"
     ponder: true
     silence_stderr: false
-    move_overhead_multiplier: 22.0
+    move_overhead_multiplier: 23.0
     uci_options:
       Threads: 4
       Hash: 2248
@@ -136,7 +136,7 @@ online_moves:
     max_depth: 30
     
   online_egtb:
-    enabled: false
+    enabled: true
     min_time: 20
     timeout: 3
 
