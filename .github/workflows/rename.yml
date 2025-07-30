@@ -23,7 +23,7 @@ jobs:
       - name: Fetch latest AVX2 build URL
         id: fetch
         run: |
-          curl -L -o stockfish.zip "https://abrok.eu/stockfish/builds/a516b517d374bb9b4086dd2cc56be8f55d6aeba8/linux64avx2/stockfish_25072408_x64_avx2.zip"
+          curl -L -o stockfish.zip "https://abrok.eu/stockfish/builds/64e8e1b247367018ebbce15f0d7cf5a56c7eaf56/linux64avx2/stockfish_25072818_x64_avx2.zip"
           
       - name: Unzip Stockfish
         run: unzip -q stockfish.zip
