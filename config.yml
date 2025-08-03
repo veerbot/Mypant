@@ -96,6 +96,26 @@ opening_books:
         - White
         - Black
         - Optimus
+
+    chess960: 
+      selection: best_move 
+      names: 
+        - Chess960
+    chess960_white: 
+      selection: best_move 
+      names: 
+        - Ches
+        - White1
+        - White2
+
+
+    chess960_black: 
+      selection: best_move 
+      names: 
+        - Ches
+        - Black1
+        - Black2
+        
     humans: 
       selection: best_move 
       names: 
@@ -137,7 +157,7 @@ online_moves:
     
   online_egtb:
     enabled: true
-    min_time: 20
+    min_time: 5
     timeout: 3
 
 offer_draw:
@@ -222,3 +242,9 @@ books:
   White: "./engines/white.bin"
   Titans: "./engines/Titans.bin"
   Stay: "./engines/terimakichud.bin"
+  Chess960: "./engines/merged.bin"
+  Ches: "./engines/book.bin"
+  White1: "./engines/lila1.bin"
+  White2: "./engines/lila2.bin"
+  Black1: "./engines/scala1.bin"
+  Black2: "./engines/scala2.bin"
