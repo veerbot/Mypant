@@ -30,7 +30,7 @@ engines:
       # depth: 50
       # nodes: 8000000
 
-  bullet:
+  chess960:
     dir: "./engines"
     name: "stockfish"
     ponder: true
