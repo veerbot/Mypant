@@ -2,6 +2,15 @@ name: Run bot
 
 on:
   workflow_dispatch:
+    inputs:
+      matchmaking:
+        description: "Optional matchmaking parameter"
+        required: false
+        default: ""
+      tournament:
+        description: "Optional tournament parameter"
+        required: false
+        default: ""
   push:
     branches:
       - "main"
@@ -14,10 +23,10 @@ jobs:
   build:
     concurrency:
       group: bot-run
-      cancel-in-progress: false  # Keep this false for fastest restarts
+      cancel-in-progress: false
 
     runs-on: ubuntu-latest
-    timeout-minutes: 355  # Just under 6-hour GitHub limit
+    timeout-minutes: 355
 
     steps:
       - name: Checkout repo
@@ -46,19 +55,31 @@ jobs:
         run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
 
       - name: Make Stockfish Executable
-        run: | 
-             chmod +x ./engines/stockfish
-             chmod +x ./engines/fairy-stockfish_x86-64-bmi2
+        run: |
+          chmod +x ./engines/stockfish
+          chmod +x ./engines/fairy-stockfish_x86-64-bmi2
 
       - name: Run Bot
         run: |
           echo "Starting bot..."
-          python3 -u user_interface.py "tournament OzygXNaR" &
+
+          # Read inputs
+          MATCHMAKING_INPUT="${{ github.event.inputs.matchmaking }}"
+          TOURNAMENT_INPUT="${{ github.event.inputs.tournament }}"
+
+          # Build command dynamically
+          CMD="python3 -u user_interface.py"
+          [ -n "$MATCHMAKING_INPUT" ] && CMD="$CMD $MATCHMAKING_INPUT"
+          [ -n "$TOURNAMENT_INPUT" ] && CMD="$CMD $TOURNAMENT_INPUT"
+
+          echo "Running command: $CMD"
+          eval $CMD &
+
           PID=$!
-          
-          # Auto-exit after 350 minutes (so restart runs without overlap)
+
+          # Auto-exit after 350 minutes
           ( sleep 21000 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
-          
+
           wait $PID
           echo "Bot ended cleanly."
 
@@ -67,5 +88,3 @@ jobs:
         run: gh workflow run bot.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
