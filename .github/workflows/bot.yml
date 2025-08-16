@@ -4,9 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       matchmaking:
-        description: "Optional matchmaking parameter"
+        description: "Enable matchmaking?"
         required: false
-        default: ""
+        type: boolean
+        default: false
       tournament:
         description: "Optional tournament parameter"
         required: false
@@ -64,12 +65,16 @@ jobs:
           echo "Starting bot..."
 
           # Read inputs
-          MATCHMAKING_INPUT="${{ github.event.inputs.matchmaking }}"
+          MATCHMAKING="${{ github.event.inputs.matchmaking }}"
           TOURNAMENT_INPUT="${{ github.event.inputs.tournament }}"
 
           # Build command dynamically
           CMD="python3 -u user_interface.py"
-          [ -n "$MATCHMAKING_INPUT" ] && CMD="$CMD $MATCHMAKING_INPUT"
+
+          # Add matchmaking only if ticked
+          [ "$MATCHMAKING" = "true" ] && CMD="$CMD matchmaking"
+
+          # Add tournament if provided
           [ -n "$TOURNAMENT_INPUT" ] && CMD="$CMD $TOURNAMENT_INPUT"
 
           echo "Running command: $CMD"
