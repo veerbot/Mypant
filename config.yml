@@ -218,26 +218,7 @@ matchmaking:
   selection: cyclic
   types:
     bullet:
-      tc: 30+0
-    bulle2:
-      tc: 3+0
-    bc:
-      tc: 5+0
-    bm3:
       tc: 1+0
-    gulugulu:
-      tc: 0+1
-    guliguli:
-      tc: 10+0
-    hvj:
-      tc: 1.5+0
-    win:
-      tc: 8+0
-    loss:
-      tc: 2+0
-    drum:
-      tc: 0.5+1
-      variant: chess960
 
 messages:
   greeting: "Humpo Dumpo! I am {me} made by Realboy9000.Looking forward to start,good luck."
