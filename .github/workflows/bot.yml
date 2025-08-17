@@ -109,7 +109,7 @@ jobs:
                 echo "Invalid stop_seconds input: $STOP_SECONDS. Skipping stop."
               else
                 echo "Scheduling stop command in $STOP_SECONDS seconds..."
-                ( sleep "$STOP_SECONDS" && echo "Running stop command..." && stop ) &
+                ( sleep "$STOP_SECONDS" && echo "Running stop command..." && python3 -u user_interface.py stop ) &
               fi
             fi
           fi
