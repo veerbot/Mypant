@@ -70,9 +70,7 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Inject Secret Token
-        run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" Config/config2.yml
-
+    
       - name: Make Stockfish Executable
         run: |
           chmod +x ./engines/stockfish
@@ -125,4 +123,5 @@ jobs:
         run: gh workflow run bot.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
