@@ -17,11 +17,22 @@ on:
         description: "Optional commands to pass"
         required: false
         default: ""
+      never_stop:
+        description: "Never stop matchmaking unless it stops itself"
+        required: false
+        type: boolean
+        default: "false"
+      stop_seconds:
+        description: "Seconds to wait before sending stop command (ignored if never_stop ticked)"
+        required: false
+        default: ""
+
   push:
     branches:
       - "main"
     paths:
       - "user_interface.py"
+
   schedule:
     - cron: "1 */5 * * *"  # Every 5 hours at minute 1
 
@@ -75,28 +86,38 @@ jobs:
           UPGRADE="${{ github.event.inputs.upgrade }}"
           MATCHMAKING="${{ github.event.inputs.matchmaking }}"
           ADDITIONAL_CMD="${{ github.event.inputs.additional_command }}"
+          NEVER_STOP="${{ github.event.inputs.never_stop }}"
+          STOP_SECONDS="${{ github.event.inputs.stop_seconds }}"
 
           # Build command dynamically
           CMD="python3 -u user_interface.py"
-
-          # Add --upgrade if ticked
           [ "$UPGRADE" = "true" ] && CMD="$CMD --upgrade"
-
-          # Add matchmaking if ticked
           [ "$MATCHMAKING" = "true" ] && CMD="$CMD matchmaking"
-
-          # Add additional command if provided
           [ -n "$ADDITIONAL_CMD" ] && CMD="$CMD $ADDITIONAL_CMD"
 
           echo "Running command: $CMD"
           eval $CMD &
 
-          PID=$!
+          BOT_PID=$!
+
+          # --- Conditional matchmaking stop ---
+          if [ "$MATCHMAKING" = "true" ]; then
+            if [ "$NEVER_STOP" = "true" ]; then
+              echo "Never stop ticked. Stop command will not run."
+            else
+              if ! [[ "$STOP_SECONDS" =~ ^[0-9]+$ ]] || [ "$STOP_SECONDS" -le 0 ]; then
+                echo "Invalid stop_seconds input: $STOP_SECONDS. Skipping stop."
+              else
+                echo "Scheduling stop command in $STOP_SECONDS seconds..."
+                ( sleep "$STOP_SECONDS" && echo "Running stop command..." && stop ) &
+              fi
+            fi
+          fi
 
           # Auto-exit after 350 minutes
-          ( sleep 21000 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
+          ( sleep 21000 && echo "Time up. Killing bot..." && kill -SIGTERM $BOT_PID ) &
 
-          wait $PID
+          wait $BOT_PID
           echo "Bot ended cleanly."
 
       - name: 🔁 Self-Restart (Fire-and-Forget)
@@ -104,5 +125,3 @@ jobs:
         run: gh workflow run bot.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
