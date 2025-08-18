@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  workflows: write   # required to update workflow files
 
 jobs:
   sync:
@@ -29,13 +28,14 @@ jobs:
           git remote add upstream https://github.com/Torom/BotLi.git || true
           git fetch upstream --prune
 
-      - name: Sync my master with upstream/main
+      - name: Sync my master with upstream/main (excluding workflows)
         run: |
-          # checkout or create your master branch
           git checkout master || git checkout -b master
-          # hard reset it to match Torom/BotLi:main
           git reset --hard upstream/main
+          # Remove upstream workflows so push isn't rejected
+          rm -rf .github/workflows/*
+          git commit -am "Remove upstream workflows" || true
 
-      - name: Push updated master to origin
+      - name: Force push updated master to origin
         run: |
-          git push origin master --force-with-lease
+          git push origin master --force
