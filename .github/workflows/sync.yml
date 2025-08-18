@@ -1,34 +1,30 @@
-name: Sync mew with Torom/main
+name: Sync mew with Torom/main (keep my commits)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 */12 * * *" # every 12 hours
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Set up git
+      - name: Add upstream (Torom)
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/Torom/BotLi.git || true
+          git fetch upstream
 
-      - name: Add upstream
-        run: git remote add upstream https://github.com/Torom/<repo-name>.git
-
-      - name: Fetch upstream
-        run: git fetch upstream
-
-      - name: Rebase my mew branch onto upstream/main
+      - name: Checkout mew branch
         run: |
-          git checkout mew
+          git checkout mew || git checkout -b mew
+
+      - name: Rebase my commits onto upstream/main
+        run: |
           git rebase upstream/main || git rebase --abort
 
-      - name: Push changes
-        run: git push origin mew --force-with-lease
+      - name: Force push updated mew
+        run: |
+          git push origin mew --force-with-lease
