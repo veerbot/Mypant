@@ -1,9 +1,9 @@
-name: Sync Upstream BotLi into master branch
+name: Sync Torom main into my master
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # every day at 00:00 UTC
-  workflow_dispatch:
+    - cron: '0 0 * * *'   # daily at 00:00 UTC
+  workflow_dispatch:       # allow manual trigger
 
 permissions:
   contents: write
@@ -12,29 +12,29 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout this repo
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Configure git user
+      - name: Set git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Add upstream and fetch
+      - name: Add upstream (Torom/BotLi) and fetch
         run: |
           git remote add upstream https://github.com/Torom/BotLi.git || true
           git fetch upstream --prune
 
-      - name: Update side branch master from upstream/master
+      - name: Sync my master with upstream/main
         run: |
-          # checkout (or create) the local master branch
+          # checkout or create your master branch
           git checkout master || git checkout -b master
-          # sync it to upstream/master
-          git reset --hard upstream/master
+          # hard reset it to match Torom/BotLi:main
+          git reset --hard upstream/main
 
-      - name: Push updated master to fork
+      - name: Push updated master to origin
         run: |
           git push origin master --force-with-lease
