@@ -1,41 +1,34 @@
-name: Sync Torom main into my master
+name: Sync mew with Torom/main
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'   # daily at 00:00 UTC
-  workflow_dispatch:       # allow manual trigger
-
-permissions:
-  contents: write
+    - cron: "0 */12 * * *" # every 12 hours
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout this repo
-        uses: actions/checkout@v5
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true
 
-      - name: Set git identity
+      - name: Set up git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Add upstream (Torom/BotLi) and fetch
-        run: |
-          git remote add upstream https://github.com/Torom/BotLi.git || true
-          git fetch upstream --prune
+      - name: Add upstream
+        run: git remote add upstream https://github.com/Torom/<repo-name>.git
 
-      - name: Sync my master with upstream/main (excluding workflows)
-        run: |
-          git checkout master || git checkout -b master
-          git reset --hard upstream/main
-          # Remove upstream workflows so push isn't rejected
-          rm -rf .github/workflows/*
-          git commit -am "Remove upstream workflows" || true
+      - name: Fetch upstream
+        run: git fetch upstream
 
-      - name: Force push updated master to origin
+      - name: Rebase my mew branch onto upstream/main
         run: |
-          git push origin master --force
+          git checkout mew
+          git rebase upstream/main || git rebase --abort
+
+      - name: Push changes
+        run: git push origin mew --force-with-lease
