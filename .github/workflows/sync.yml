@@ -1,36 +1,37 @@
-name: Sync mew with Torom/main
+name: Sync with Upstream BotLi
 
 on:
+  schedule:
+    # Runs every day at midnight UTC
+    - cron: '0 0 * * *'
   workflow_dispatch:
+    # Allows to be manually triggered
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout Fork
+        uses: actions/checkout@v5
         with:
+          # We need the full history to avoid conflicts
           fetch-depth: 0
-          persist-credentials: true   # important for push
 
-      - name: Set Git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Add upstream (Torom)
-        run: |
-          git remote add upstream https://github.com/Torom/BotLi.git || true
-          git fetch upstream
-
-      - name: Checkout mew branch
-        run: |
-          git checkout mew || git checkout -b mew
-
-      - name: Rebase my commits onto upstream/main
-        run: |
-          git rebase upstream/main --reapply-cherry-picks || git rebase --abort
-
-      - name: Force push updated mew
-        run: |
-          git push origin mew --force-with-lease
+      - name: Create Pull Request from Upstream BotLi
+        uses: repo-sync/pull-request@v2
+        with:
+          source_repo: "https://github.com/Torom/BotLi.git"
+          source_branch: "main"
+          
+          # The branch in your repo that should be updated
+          destination_branch: "mew"
+          
+          # A GITHUB_TOKEN is automatically created and has the necessary permissions
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # The title of the pull request
+          pr_title: "Update from Upstream BotLi Repository"
+          
+          # The body of the pull request
+          pr_body: |
+            This PR updates the repository with the latest changes from the upstream BotLi repository.
