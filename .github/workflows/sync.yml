@@ -28,10 +28,13 @@ jobs:
           git fetch upstream main
 
       - name: Merge Torom/main into mew
-        run: git merge upstream/main
+        run: |
+          # This command is for the initial sync when histories are unrelated.
+          # After the first successful run, you can remove --allow-unrelated-histories.
+          git merge upstream/main --allow-unrelated-histories
 
       - name: Push merged mew branch
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for internal repo operations
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git push origin mew
