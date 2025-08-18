@@ -1,37 +1,37 @@
-name: Sync with Upstream BotLi
+name: Sync mew with Torom/main
 
 on:
   schedule:
     # Runs every day at midnight UTC
     - cron: '0 0 * * *'
   workflow_dispatch:
-    # Allows to be manually triggered
+    # Allows manual trigger
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Fork
+      - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          # We need the full history to avoid conflicts
           fetch-depth: 0
+          ref: mew
 
-      - name: Create Pull Request from Upstream BotLi
-        uses: repo-sync/pull-request@v2
-        with:
-          source_repo: "https://github.com/Torom/BotLi.git"
-          source_branch: "main"
-          
-          # The branch in your repo that should be updated
-          destination_branch: "mew"
-          
-          # A GITHUB_TOKEN is automatically created and has the necessary permissions
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          
-          # The title of the pull request
-          pr_title: "Update from Upstream BotLi Repository"
-          
-          # The body of the pull request
-          pr_body: |
-            This PR updates the repository with the latest changes from the upstream BotLi repository.
+      - name: Set Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add Torom upstream and fetch
+        run: |
+          git remote add upstream https://github.com/Torom/BotLi.git || true
+          git fetch upstream main
+
+      - name: Merge Torom/main into mew
+        run: git merge upstream/main
+
+      - name: Push merged mew branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for internal repo operations
+        run: |
+          git push origin mew
