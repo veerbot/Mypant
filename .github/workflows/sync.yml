@@ -1,38 +1,40 @@
-name: Sync with Upstream BotLi
+name: Sync Upstream BotLi into master branch
 
 on:
   schedule:
-    # Runs every day at midnight UTC
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'   # every day at 00:00 UTC
   workflow_dispatch:
-    # Allows to be manually triggered
+
+permissions:
+  contents: write
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Fork
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          # We need the full history to avoid conflicts
           fetch-depth: 0
+          persist-credentials: true
 
-      - name: Create Pull Request from Upstream BotLi
-        id: pr
-        uses: repo-sync/pull-request@v2
-        with:
-          source_repo: "https://github.com/Torom/BotLi.git"
-          source_branch: "master"
-          destination_branch: "master"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Update from Upstream BotLi Repository"
-          pr_body: |
-            This PR updates the repository with the latest changes from the upstream BotLi repository.
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Auto-merge the PR
-        if: steps.pr.outputs.pr_number != ''
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.pr.outputs.pr_number }}
-          merge-method: squash
+      - name: Add upstream and fetch
+        run: |
+          git remote add upstream https://github.com/Torom/BotLi.git || true
+          git fetch upstream --prune
+
+      - name: Update side branch master from upstream/master
+        run: |
+          # checkout (or create) the local master branch
+          git checkout master || git checkout -b master
+          # sync it to upstream/master
+          git reset --hard upstream/master
+
+      - name: Push updated master to fork
+        run: |
+          git push origin master --force-with-lease
