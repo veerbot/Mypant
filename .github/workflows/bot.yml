@@ -12,7 +12,7 @@ on:
         description: "Enable matchmaking?"
         required: false
         type: boolean
-        default: "false"
+        default: "true"   # default ON
       additional_command:
         description: "Optional commands to pass"
         required: false
@@ -84,16 +84,16 @@ jobs:
 
           # Read inputs
           UPGRADE="${{ github.event.inputs.upgrade }}"
-          MATCHMAKING="${{ github.event.inputs.matchmaking }}"
+          MATCHMAKING="${{ github.event.inputs.matchmaking }}"  # read user input
           ADDITIONAL_CMD="${{ github.event.inputs.additional_command }}"
           NEVER_STOP="${{ github.event.inputs.never_stop }}"
           STOP_SECONDS="${{ github.event.inputs.stop_seconds }}"
 
-          # Build command dynamically, with correct quoting for ADDITIONAL_CMD
+          # Build command dynamically
           CMD="python3 -u user_interface.py"
           [ "$UPGRADE" = "true" ] && CMD="$CMD --upgrade"
-          [ "$MATCHMAKING" = "true" ] && CMD="$CMD matchmaking"
-          [ -n "$ADDITIONAL_CMD" ] && CMD="$CMD \"$ADDITIONAL_CMD\"" # Correct quoting applied here
+          [ "$MATCHMAKING" = "true" ] && CMD="$CMD matchmaking"  # only add if true
+          [ -n "$ADDITIONAL_CMD" ] && CMD="$CMD \"$ADDITIONAL_CMD\""
 
           echo "Running command: $CMD"
           eval "$CMD" &
@@ -125,8 +125,3 @@ jobs:
         run: gh workflow run bot.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-
-
-
