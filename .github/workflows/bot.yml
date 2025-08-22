@@ -34,7 +34,7 @@ on:
       - "user_interface.py"
 
   schedule:
-    - cron: "1 */5 * * *"  # Every 5 hours at minute 1
+    - cron: "1 */5 * * *" # Every 5 hours at minute 1
 
 jobs:
   build:
@@ -46,7 +46,7 @@ jobs:
     timeout-minutes: 355
     env:
       LICHESS_BOT_TOKEN: ${{ secrets.LICHESS_KEY }}
-     
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -73,7 +73,6 @@ jobs:
       - name: Inject Secret Token
         run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
 
-    
       - name: Make Stockfish Executable
         run: |
           chmod +x ./engines/stockfish
@@ -90,14 +89,14 @@ jobs:
           NEVER_STOP="${{ github.event.inputs.never_stop }}"
           STOP_SECONDS="${{ github.event.inputs.stop_seconds }}"
 
-          # Build command dynamically
+          # Build command dynamically, with correct quoting for ADDITIONAL_CMD
           CMD="python3 -u user_interface.py"
           [ "$UPGRADE" = "true" ] && CMD="$CMD --upgrade"
           [ "$MATCHMAKING" = "true" ] && CMD="$CMD matchmaking"
-          [ -n "$ADDITIONAL_CMD" ] && CMD="$CMD $ADDITIONAL_CMD"
+          [ -n "$ADDITIONAL_CMD" ] && CMD="$CMD \"$ADDITIONAL_CMD\"" # Correct quoting applied here
 
           echo "Running command: $CMD"
-          eval $CMD &
+          eval "$CMD" &
 
           BOT_PID=$!
 
@@ -126,6 +125,7 @@ jobs:
         run: gh workflow run bot.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 
 
